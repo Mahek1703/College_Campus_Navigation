@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>360° Virtual Tour</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #070B19;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #panoramaCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            touch-action: none;
+        }
+
+        #hotspotContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .hotspot {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .hotspot:active {
+            transform: translate(-50%, -50%) scale(0.92);
+        }
+
+        .hotspot-icon-wrapper {
+            position: relative;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hotspot-halo {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(30, 136, 229, 0.4);
+            animation: pulseHalo 2s infinite ease-in-out;
+        }
+
+        .hotspot-pin {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1E88E5 0%, #0D47A1 100%);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .hotspot-pin.door {
+            background: linear-gradient(135deg, #00E676 0%, #00897B 100%);
+        }
+
+        .hotspot-pin.elevator {
+            background: linear-gradient(135deg, #FFB300 0%, #E65100 100%);
+        }
+
+        .hotspot-pin.lab {
+            background: linear-gradient(135deg, #00B0FF 0%, #00695C 100%);
+        }
+
+        .hotspot-pin.stairs {
+            background: linear-gradient(135deg, #AB47BC 0%, #4A148C 100%);
+        }
+
+        .hotspot-badge {
+            margin-top: 6px;
+            padding: 4px 10px;
+            background: rgba(10, 17, 40, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            color: #ffffff;
+            text-align: center;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .hotspot-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .hotspot-subtitle {
+            font-size: 9px;
+            color: #90CAF9;
+            margin-top: 1px;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes pulseHalo {
+            0% {
+                transform: scale(0.85);
+                opacity: 0.9;
+            }
+            50% {
+                transform: scale(1.45);
+                opacity: 0.15;
+            }
+            100% {
+                transform: scale(0.85);
+                opacity: 0.9;
+            }
+        }
+
+        /* Overlay Scrim & Crossfade Transition */
+        #fadeOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            z-index: 50;
+        }
+
+        #fadeOverlay.active {
+            opacity: 1;
+        }
+
+        /* Toast Indicator */
+        #hudToast {
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 6px 14px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+            z-index: 60;
+        }
+
+        #hudToast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Ambient Reticle in Center */
+        #centerReticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.45);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 8px rgba(0, 230, 118, 0.8);
+            transition: transform 0.2s, background 0.2s;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="panoramaCanvas"></canvas>
+    <div id="hotspotContainer"></div>
+    <div id="centerReticle"></div>
+    <div id="hudToast"></div>
+    <div id="fadeOverlay"></div>
+
+    <script>
+        // ==========================================
+        // 360° WEBGL EQUIRECTANGULAR ENGINE
+        // ==========================================
+
+        const canvas = document.getElementById('panoramaCanvas');
+        const hotspotContainer = document.getElementById('hotspotContainer');
+        const fadeOverlay = document.getElementById('fadeOverlay');
+        const hudToast = document.getElementById('hudToast');
+
+        let gl = canvas.getContext('webgl', { antialias: true, alpha: false }) ||
+                 canvas.getContext('experimental-webgl');
+
+        let isUserInteracting = false;
+        let onPointerDownPointerX = 0, onPointerDownPointerY = 0;
+        let lon = 0, onPointerDownLon = 0;
+        let lat = 0, onPointerDownLat = 0;
+        let phi = 0, theta = 0;
+        let fov = 75; // Field of View (Zoom)
+        let targetFov = 75;
+        let isAutoRotating = false;
+        let isGyroEnabled = false;
+
+        let velocityX = 0, velocityY = 0;
+        let lastTouchTime = 0;
+        let touchDistance = 0;
+
+        let currentScene = null;
+        let texture = null;
+        let shaderProgram = null;
+        let sphereMesh = null;
+        let isInitialized = false;
+
+        // --- WebGL Shaders for Equirectangular Sphere Projection ---
+        const vertexShaderSource = `
+            attribute vec3 aPosition;
+            attribute vec2 aTexCoord;
+            uniform mat4 uProjectionMatrix;
+            uniform mat4 uViewMatrix;
+            varying vec2 vTexCoord;
+            void main(void) {
+                vTexCoord = aTexCoord;
+                gl_Position = uProjectionMatrix * uViewMatrix * vec4(aPosition, 1.0);
+            }
+        `;
+
+        const fragmentShaderSource = `
+            precision mediump float;
+            varying vec2 vTexCoord;
+            uniform sampler2D uSampler;
+            void main(void) {
+                gl_FragColor = texture2D(uSampler, vTexCoord);
+            }
+        `;
+
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error("Shader compile failed:", gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        function initShaders() {
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+
+            shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                console.error("Program link failed:", gl.getProgramInfoLog(shaderProgram));
+                return false;
+            }
+
+            shaderProgram.aPosition = gl.getAttribLocation(shaderProgram, "aPosition");
+            shaderProgram.aTexCoord = gl.getAttribLocation(shaderProgram, "aTexCoord");
+            shaderProgram.uProjectionMatrix = gl.getUniformLocation(shaderProgram, "uProjectionMatrix");
+            shaderProgram.uViewMatrix = gl.getUniformLocation(shaderProgram, "uViewMatrix");
+            shaderProgram.uSampler = gl.getUniformLocation(shaderProgram, "uSampler");
+            return true;
+        }
+
+        // --- Build UV Sphere Mesh ---
+        function createSphere(radius, segmentsW, segmentsH) {
+            const positions = [];
+            const texCoords = [];
+            const indices = [];
+
+            for (let latNumber = 0; latNumber <= segmentsH; latNumber++) {
+                const theta = (latNumber * Math.PI) / segmentsH;
+                const sinTheta = Math.sin(theta);
+                const cosTheta = Math.cos(theta);
+
+                for (let longNumber = 0; longNumber <= segmentsW; longNumber++) {
+                    const phi = (longNumber * 2 * Math.PI) / segmentsW;
+                    const sinPhi = Math.sin(phi);
+                    const cosPhi = Math.cos(phi);
+
+                    const x = cosPhi * sinTheta;
+                    const y = cosTheta;
+                    const z = sinPhi * sinTheta;
+                    const u = 1 - (longNumber / segmentsW);
+                    const v = latNumber / segmentsH;
+
+                    positions.push(radius * x, radius * y, radius * z);
+                    texCoords.push(u, v);
+                }
+            }
+
+            for (let latNumber = 0; latNumber < segmentsH; latNumber++) {
+                for (let longNumber = 0; longNumber < segmentsW; longNumber++) {
+                    const first = (latNumber * (segmentsW + 1)) + longNumber;
+                    const second = first + segmentsW + 1;
+
+                    indices.push(first, second, first + 1);
+                    indices.push(second, second + 1, first + 1);
+                }
+            }
+
+            const posBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+            const texBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, texBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
+
+            const indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+            return {
+                posBuffer,
+                texBuffer,
+                indexBuffer,
+                indexCount: indices.length
+            };
+        }
+
+        // Matrix Math Helpers
+        function mat4Perspective(out, fovy, aspect, near, far) {
+            const f = 1.0 / Math.tan(fovy / 2);
+            out[0] = f / aspect; out[1] = 0; out[2] = 0; out[3] = 0;
+            out[4] = 0; out[5] = f; out[6] = 0; out[7] = 0;
+            out[8] = 0; out[9] = 0; out[10] = (far + near) / (near - far); out[11] = -1;
+            out[12] = 0; out[13] = 0; out[14] = (2 * far * near) / (near - far); out[15] = 0;
+        }
+
+        function mat4LookAt(out, eye, center, up) {
+            let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
+            let eyex = eye[0], eyey = eye[1], eyez = eye[2];
+            let upx = up[0], upy = up[1], upz = up[2];
+            let centerx = center[0], centery = center[1], centerz = center[2];
+
+            z0 = eyex - centerx; z1 = eyey - centery; z2 = eyez - centerz;
+            len = 1 / Math.hypot(z0, z1, z2);
+            z0 *= len; z1 *= len; z2 *= len;
+
+            x0 = upy * z2 - upz * z1; x1 = upz * z0 - upx * z2; x2 = upx * z1 - upy * z0;
+            len = 1 / Math.hypot(x0, x1, x2);
+            x0 *= len; x1 *= len; x2 *= len;
+
+            y0 = z1 * x2 - z2 * x1; y1 = z2 * x0 - z0 * x2; y2 = z0 * x1 - z1 * x0;
+
+            out[0] = x0; out[1] = y0; out[2] = z0; out[3] = 0;
+            out[4] = x1; out[5] = y1; out[6] = z1; out[7] = 0;
+            out[8] = x2; out[9] = y2; out[10] = z2; out[11] = 0;
+            out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+            out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+            out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+            out[15] = 1;
+        }
+
+        // --- Init WebGL Canvas ---
+        function initWebGL() {
+            if (!gl) {
+                console.error("WebGL not supported");
+                return;
+            }
+            if (!initShaders()) return;
+            sphereMesh = createSphere(500, 60, 40);
+            texture = gl.createTexture();
+            createFallbackTexture();
+            isInitialized = true;
+            resize();
+            requestAnimationFrame(render);
+        }
+
+        function createFallbackTexture() {
+            const w = 512, h = 256;
+            const canvas2d = document.createElement('canvas');
+            canvas2d.width = w; canvas2d.height = h;
+            const ctx = canvas2d.getContext('2d');
+
+            const grad = ctx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, '#102A45');
+            grad.addColorStop(0.5, '#1A365D');
+            grad.addColorStop(1, '#0F172A');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Grid lines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 32) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 0; y < h; y += 32) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            ctx.fillStyle = '#64B5F6';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Campus 360° Virtual Tour Loading...', w / 2, h / 2);
+
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas2d);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        }
+
+        function resize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+                gl.viewport(0, 0, width, height);
+            }
+        }
+        window.addEventListener('resize', resize);
+
+        // ==========================================
+        // SCENE LOADING & HOTSPOT RENDERING
+        // ==========================================
+
+        window.loadSceneFromData = function(sceneDataJson) {
+            try {
+                const scene = typeof sceneDataJson === 'string' ? JSON.parse(sceneDataJson) : sceneDataJson;
+                fadeOverlay.classList.add('active');
+
+                setTimeout(() => {
+                    currentScene = scene;
+                    if (scene.defaultYaw !== undefined) lon = scene.defaultYaw;
+                    if (scene.defaultPitch !== undefined) lat = scene.defaultPitch;
+
+                    loadTextureFromUrl(scene.imageUrl || scene.imageBase64, () => {
+                        fadeOverlay.classList.remove('active');
+                        renderHotspots();
+                        showToast("📍 " + scene.title);
+                    });
+                }, 200);
+            } catch (e) {
+                console.error("Failed to parse scene JSON:", e);
+            }
+        };
+
+        function loadTextureFromUrl(url, callback) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = function() {
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                if (callback) callback();
+            };
+            img.onerror = function() {
+                console.warn("Could not load image, keeping fallback texture");
+                if (callback) callback();
+            };
+            img.src = url;
+        }
+
+        function renderHotspots() {
+            hotspotContainer.innerHTML = '';
+            if (!currentScene || !currentScene.hotspots) return;
+
+            currentScene.hotspots.forEach(hs => {
+                const el = document.createElement('div');
+                el.className = 'hotspot';
+                el.id = 'hs_' + hs.id;
+
+                let iconSymbol = '🚶';
+                let typeClass = 'walk';
+                if (hs.type === 'ENTER_DOOR') { iconSymbol = '🚪'; typeClass = 'door'; }
+                else if (hs.type === 'ELEVATOR') { iconSymbol = '🛗'; typeClass = 'elevator'; }
+                else if (hs.type === 'STAIRS') { iconSymbol = '🪜'; typeClass = 'stairs'; }
+                else if (hs.type === 'LAB') { iconSymbol = '🔬'; typeClass = 'lab'; }
+                else if (hs.type === 'INFO') { iconSymbol = 'ℹ️'; typeClass = 'info'; }
+
+                el.innerHTML = `
+                    <div class="hotspot-icon-wrapper">
+                        <div class="hotspot-halo"></div>
+                        <div class="hotspot-pin ${typeClass}">${iconSymbol}</div>
+                    </div>
+                    <div class="hotspot-badge">
+                        <div class="hotspot-title">${hs.title}</div>
+                        ${hs.subtitle ? `<div class="hotspot-subtitle">${hs.subtitle}</div>` : ''}
+                    </div>
+                `;
+
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    triggerHotspot(hs);
+                });
+
+                hotspotContainer.appendChild(el);
+            });
+            updateHotspotPositions();
+        }
+
+        function triggerHotspot(hs) {
+            if (window.AndroidBridge && window.AndroidBridge.onHotspotClicked) {
+                window.AndroidBridge.onHotspotClicked(hs.targetSceneId, hs.targetRoomCode || "");
+            } else {
+                console.log("Hotspot clicked:", hs);
+            }
+        }
+
+        function updateHotspotPositions() {
+            if (!currentScene || !currentScene.hotspots) return;
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const fovRad = (fov * Math.PI) / 180;
+
+            currentScene.hotspots.forEach(hs => {
+                const el = document.getElementById('hs_' + hs.id);
+                if (!el) return;
+
+                // Relative spherical angle diff
+                let dLon = (hs.yaw - lon) % 360;
+                if (dLon > 180) dLon -= 360;
+                if (dLon < -180) dLon += 360;
+
+                const dLat = hs.pitch - lat;
+
+                // Check if in front of camera (within ~90 degrees)
+                if (Math.abs(dLon) < 85 && Math.abs(dLat) < 65) {
+                    const aspect = width / height;
+                    const hFov = 2 * Math.atan(Math.tan(fovRad / 2) * aspect);
+
+                    const xPercent = 0.5 + (-(dLon * Math.PI / 180) / hFov);
+                    const yPercent = 0.5 - ((dLat * Math.PI / 180) / fovRad);
+
+                    const screenX = xPercent * width;
+                    const screenY = yPercent * height;
+
+                    el.style.left = screenX + 'px';
+                    el.style.top = screenY + 'px';
+                    el.style.opacity = '1';
+                    el.style.display = 'flex';
+                } else {
+                    el.style.opacity = '0';
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        // ==========================================
+        // TOUCH, DRAG, PINCH ZOOM & GYROSCOPE
+        // ==========================================
+
+        function onTouchStart(e) {
+            if (e.touches.length === 1) {
+                isUserInteracting = true;
+                onPointerDownPointerX = e.touches[0].clientX;
+                onPointerDownPointerY = e.touches[0].clientY;
+                onPointerDownLon = lon;
+                onPointerDownLat = lat;
+                velocityX = 0;
+                velocityY = 0;
+            } else if (e.touches.length === 2) {
+                isUserInteracting = false;
+                touchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+        }
+
+        function onTouchMove(e) {
+            if (isUserInteracting && e.touches.length === 1) {
+                const deltaX = e.touches[0].clientX - onPointerDownPointerX;
+                const deltaY = e.touches[0].clientY - onPointerDownPointerY;
+
+                const newLon = (onPointerDownPointerX - e.touches[0].clientX) * 0.18 + onPointerDownLon;
+                const newLat = (e.touches[0].clientY - onPointerDownPointerY) * 0.18 + onPointerDownLat;
+
+                velocityX = newLon - lon;
+                velocityY = newLat - lat;
+
+                lon = newLon;
+                lat = Math.max(-85, Math.min(85, newLat));
+            } else if (e.touches.length === 2) {
+                const newDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const factor = touchDistance / newDist;
+                targetFov = Math.max(35, Math.min(95, fov * factor));
+                touchDistance = newDist;
+            }
+        }
+
+        function onTouchEnd() {
+            isUserInteracting = false;
+        }
+
+        canvas.addEventListener('touchstart', onTouchStart, { passive: true });
+        canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+        canvas.addEventListener('touchend', onTouchEnd, { passive: true });
+
+        // Mouse Drag & Wheel for Testing / Desktop
+        canvas.addEventListener('mousedown', (e) => {
+            isUserInteracting = true;
+            onPointerDownPointerX = e.clientX;
+            onPointerDownPointerY = e.clientY;
+            onPointerDownLon = lon;
+            onPointerDownLat = lat;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isUserInteracting) return;
+            lon = (onPointerDownPointerX - e.clientX) * 0.2 + onPointerDownLon;
+            lat = Math.max(-85, Math.min(85, (e.clientY - onPointerDownPointerY) * 0.2 + onPointerDownLat));
+        });
+
+        window.addEventListener('mouseup', () => { isUserInteracting = false; });
+        canvas.addEventListener('wheel', (e) => {
+            targetFov = Math.max(35, Math.min(95, fov + e.deltaY * 0.05));
+        });
+
+        // Toggle Auto-Rotation
+        window.toggleAutoRotation = function(enable) {
+            isAutoRotating = enable !== undefined ? enable : !isAutoRotating;
+            showToast(isAutoRotating ? "🔄 Auto-Tour Enabled" : "⏹️ Auto-Tour Paused");
+        };
+
+        // Toggle Gyroscope
+        window.toggleGyroscope = function(enable) {
+            isGyroEnabled = enable !== undefined ? enable : !isGyroEnabled;
+            showToast(isGyroEnabled ? "📱 Gyroscope Active" : "👆 Touch Mode Active");
+        };
+
+        function showToast(msg) {
+            hudToast.textContent = msg;
+            hudToast.classList.add('show');
+            setTimeout(() => { hudToast.classList.remove('show'); }, 2200);
+        }
+
+        // ==========================================
+        // MAIN RENDER LOOP
+        // ==========================================
+
+        let lastBroadcastTime = 0;
+        const projectionMatrix = new Float32Array(16);
+        const viewMatrix = new Float32Array(16);
+
+        function render(time) {
+            requestAnimationFrame(render);
+            if (!isInitialized) return;
+
+            // Momentum & Auto-rotation
+            if (!isUserInteracting) {
+                if (isAutoRotating) {
+                    lon += 0.25;
+                } else {
+                    lon += velocityX * 0.92;
+                    lat += velocityY * 0.92;
+                    velocityX *= 0.88;
+                    velocityY *= 0.88;
+                }
+            }
+
+            // Smooth FOV zoom interpolation
+            fov += (targetFov - fov) * 0.15;
+            lat = Math.max(-85, Math.min(85, lat));
+
+            // Spherical Camera Target Vector
+            phi = ((90 - lat) * Math.PI) / 180;
+            theta = (lon * Math.PI) / 180;
+
+            const targetX = 500 * Math.sin(phi) * Math.cos(theta);
+            const targetY = 500 * Math.cos(phi);
+            const targetZ = 500 * Math.sin(phi) * Math.sin(theta);
+
+            const aspect = canvas.width / canvas.height;
+            mat4Perspective(projectionMatrix, (fov * Math.PI) / 180, aspect, 1, 1100);
+            mat4LookAt(viewMatrix, [0, 0, 0], [targetX, targetY, targetZ], [0, 1, 0]);
+
+            gl.clearColor(0.03, 0.05, 0.1, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            gl.useProgram(shaderProgram);
+
+            // Bind mesh buffers
+            gl.bindBuffer(gl.ARRAY_BUFFER, sphereMesh.posBuffer);
+            gl.enableVertexAttribArray(shaderProgram.aPosition);
+            gl.vertexAttribPointer(shaderProgram.aPosition, 3, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, sphereMesh.texBuffer);
+            gl.enableVertexAttribArray(shaderProgram.aTexCoord);
+            gl.vertexAttribPointer(shaderProgram.aTexCoord, 2, gl.FLOAT, false, 0, 0);
+
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.uniform1i(shaderProgram.uSampler, 0);
+
+            gl.uniformMatrix4fv(shaderProgram.uProjectionMatrix, false, projectionMatrix);
+            gl.uniformMatrix4fv(shaderProgram.uViewMatrix, false, viewMatrix);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereMesh.indexBuffer);
+            gl.drawElements(gl.TRIANGLES, sphereMesh.indexCount, gl.UNSIGNED_SHORT, 0);
+
+            updateHotspotPositions();
+
+            // Broadcast orientation to Java for Mini-Map Radar (~15fps throttle)
+            if (time - lastBroadcastTime > 65) {
+                lastBroadcastTime = time;
+                if (window.AndroidBridge && window.AndroidBridge.onCameraMoved) {
+                    window.AndroidBridge.onCameraMoved(lon, lat);
+                }
+            }
+        }
+
+        window.onload = initWebGL;
+    </script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#070B19">
+
+    <!-- Top App Bar with Room Header, Search & Floor Tabs -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0D1B2A"
+        app:elevation="4dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarIndoor"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white"
+            app:title="360° Virtual Tour Navigation"
+            app:titleTextColor="@color/white"
+            app:subtitle="Interactive Campus Exploration"
+            app:subtitleTextColor="#90CAF9" />
+
+        <!-- Building & Floor Selector Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvCurrentBuilding"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🏢 MCA Department &amp; Amphitheatre"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSearchRooms"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:backgroundTint="#1E3A5F"
+                android:text="Search Room"
+                android:textColor="@color/white"
+                app:icon="@drawable/ic_search"
+                app:iconSize="15dp"
+                app:iconTint="@color/white"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
+
+        <!-- Floor Switcher Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayoutFloors"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="#0A1128"
+            app:tabIndicatorColor="@color/accent"
+            app:tabIndicatorHeight="3dp"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextColor="#78909C" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Main 360 Panorama Viewer Canvas & Floating HUD Elements -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- 360 Degree Panorama WebGL WebView -->
+        <WebView
+            android:id="@+id/webViewPanorama"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#070B19" />
+
+        <!-- Top Left Compass & Heading HUD Pill -->
+        <LinearLayout
+            android:id="@+id/layoutCompassHud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_margin="14dp"
+            android:background="@drawable/ic_launcher_background"
+            android:backgroundTint="#B30A1128"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp">
+
+            <ImageView
+                android:id="@+id/ivCompassRose"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_compass"
+                app:tint="@color/accent"
+                android:contentDescription="Compass" />
+
+            <TextView
+                android:id="@+id/tvCompassHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="N 0° • 360° View"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Top Right Floating 2D Mini-Map Card (Picture-in-Picture) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMiniMap"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="12dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            app:strokeColor="#4D4FC3F7"
+            app:strokeWidth="1.5dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#0B132B">
+
+                <!-- 2D Mini-Map Component -->
+                <com.example.collegecampusnavigation.view.MiniMapView
+                    android:id="@+id/miniMapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <!-- Mini-Map Title Badge -->
+                <TextView
+                    android:id="@+id/tvMiniMapFloorLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|start"
+                    android:layout_margin="6dp"
+                    android:background="#CC000000"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:text="2D Radar"
+                    android:textColor="@color/accent"
+                    android:textSize="9sp"
+                    android:textStyle="bold" />
+
+                <!-- Expand / Fullscreen Toggle Icon -->
+                <ImageView
+                    android:id="@+id/btnToggleMiniMapSize"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="6dp"
+                    android:background="#99000000"
+                    android:padding="3dp"
+                    android:src="@drawable/ic_layers"
+                    app:tint="@color/white"
+                    android:contentDescription="Toggle MiniMap" />
+            </FrameLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Floating Quick Control Floating Actions (Right Edge) -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical">
+
+            <!-- Auto-Rotate 360 Showcase Button -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAutoRotate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:contentDescription="Auto Rotate 360"
+                android:src="@drawable/ic_schedule"
+                app:backgroundTint="#CC1E3A5F"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <!-- Gyroscope / Motion Sensor Button -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabGyroToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:contentDescription="Motion Gyroscope"
+                android:src="@drawable/ic_location"
+                app:backgroundTint="#CC1E3A5F"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+
+            <!-- Reset 360 View Center -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabResetTourView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="Reset View"
+                android:src="@drawable/ic_compass"
+                app:backgroundTint="#CC1E3A5F"
+                app:fabSize="mini"
+                app:tint="@color/white" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Bottom Sliding Room Info & Step-by-Step Directions Sheet -->
+    <LinearLayout
+        android:id="@+id/indoorBottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0F172A"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:behavior_peekHeight="130dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:background="#475569" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Vector Category Icon Container -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardIndoorPhoto"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="12dp"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#1E293B"
+                app:strokeColor="#334FC3F7"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:id="@+id/ivIndoorRoomCategoryIcon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_building_academic"
+                    app:tint="@color/accent"
+                    android:contentDescription="Room Icon" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvIndoorRoomCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AUD-MCA-100 (Amphitheatre)"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvIndoorRoomName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Cultural Stage with Saraswati relief sculpture"
+                    android:textColor="#94A3B8"
+                    android:textSize="12sp"
+                    android:maxLines="2" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStartIndoorNav"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/primary"
+                    android:text="Route"
+                    android:textSize="11sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_route"
+                    app:iconSize="14dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIndoorVisualTour"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:backgroundTint="#1E293B"
+                    android:text="Visual 3D"
+                    android:textColor="@color/white"
+                    android:textSize="11sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_layers"
+                    app:iconSize="14dp"
+                    app:iconTint="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Step-by-Step Walk Guidance & Distance -->
+        <TextView
+            android:id="@+id/tvIndoorDirections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E293B"
+            android:padding="10dp"
+            android:text="⚡ Est. Walk: 45 ft (~12s)\n👉 1. Enter via main Ground Floor lobby\n👉 2. Turn right towards MCA Amphitheatre Cultural Stage"
+            android:textColor="#E2E8F0"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

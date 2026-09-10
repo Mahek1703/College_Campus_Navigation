@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
+
+    <application
+        android:name=".CampusNavApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CollegeCampusNavigation">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_ACTUAL_GOOGLE_MAPS_API_KEY_HERE" />
+
+        <activity
+            android:name=".activity.SplashActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".activity.IndoorMapActivity"
+            android:exported="false"
+            android:label="360° Virtual Tour Navigation"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.ClassScheduleActivity"
+            android:exported="false"
+            android:label="Class Schedule &amp; Inter-Class Planner"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.ShuttleTrackerActivity"
+            android:exported="false"
+            android:label="Campus Shuttle Tracker"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.EmergencySosActivity"
+            android:exported="false"
+            android:label="Emergency SOS Assistance"
+            android:parentActivityName=".activity.MainActivity" />
+
+        <activity
+            android:name=".activity.VisualNavigatorActivity"
+            android:exported="false"
+            android:label="Campus Visual Walkthrough Navigator"
+            android:parentActivityName=".activity.MainActivity" />
+
+    </application>
+
+</manifest>

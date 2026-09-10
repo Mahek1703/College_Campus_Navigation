@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_map"
+        android:icon="@drawable/ic_location"
+        android:title="Campus Map" />
+
+    <item
+        android:id="@+id/nav_indoor"
+        android:icon="@drawable/ic_floorplan"
+        android:title="360° Tour" />
+
+    <item
+        android:id="@+id/nav_shuttle"
+        android:icon="@drawable/ic_bus"
+        android:title="Shuttle" />
+
+    <item
+        android:id="@+id/nav_schedule"
+        android:icon="@drawable/ic_schedule"
+        android:title="Schedule" />
+
+    <item
+        android:id="@+id/nav_sos"
+        android:icon="@drawable/ic_sos"
+        android:title="SOS Alert" />
+</menu>

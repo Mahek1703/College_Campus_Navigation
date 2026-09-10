@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:cardCornerRadius="18dp"
+    app:cardElevation="6dp"
+    app:strokeColor="#1A000000"
+    app:strokeWidth="1dp">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Background Campus Photo -->
+        <ImageView
+            android:id="@+id/ivCampusCardPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="Campus Photo" />
+
+        <!-- Gradient Scrim for Contrast -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/scrim_gradient" />
+
+        <!-- Top Badges & Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvCardCategoryBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_launcher_background"
+                android:backgroundTint="#D91E88E5"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="MCA Dept"
+                android:textColor="@color/white"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCardOccupancyBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/ic_launcher_background"
+                android:backgroundTint="#CC000000"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="● 55% Active"
+                android:textColor="@color/accent"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Tap to Zoom Icon -->
+            <ImageView
+                android:id="@+id/btnCardZoomPhoto"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/ic_launcher_background"
+                android:backgroundTint="#80000000"
+                android:padding="5dp"
+                android:src="@drawable/ic_search"
+                app:tint="@color/white"
+                android:contentDescription="Zoom Photo" />
+        </LinearLayout>
+
+        <!-- Bottom Content Info & Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvCampusCardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="MCA Department &amp; Amphitheatre"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvCampusCardSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Ground Floor Cultural Stage • 2nd Floor Software Labs"
+                android:textColor="#E2E8F0"
+                android:textSize="11sp" />
+
+            <!-- Action Buttons Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCardNavigate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:backgroundTint="@color/primary"
+                    android:paddingHorizontal="12dp"
+                    android:text="Navigate"
+                    android:textSize="11sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_route"
+                    app:iconSize="14dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCardIndoor"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#CCFFFFFF"
+                    android:paddingHorizontal="10dp"
+                    android:text="Indoor Map"
+                    android:textColor="@color/primary_dark"
+                    android:textSize="11sp"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_floorplan"
+                    app:iconSize="14dp"
+                    app:iconTint="@color/primary_dark" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</com.google.android.material.card.MaterialCardView>

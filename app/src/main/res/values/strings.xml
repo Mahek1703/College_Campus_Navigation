@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">CampusNav Pro</string>
+    <string name="search_placeholder">Search buildings, rooms, POIs, labs...</string>
+    <string name="select_building">Select a Building</string>
+    <string name="tap_marker_info">Tap any campus location on the map for route &amp; details.</string>
+    <string name="navigate_here">Start Route</string>
+    <string name="search_icon_desc">Search Icon</string>
+    <string name="notification_icon_desc">Notification Icon</string>
+    <string name="indoor_nav">Indoor Maps</string>
+    <string name="class_schedule">Class Schedule</string>
+    <string name="shuttle_tracker">Shuttle Tracker</string>
+    <string name="emergency_sos">Emergency SOS</string>
+    <string name="wheelchair_mode">Accessible Mode</string>
+    <string name="step_by_step_directions">Turn-by-Turn Directions</string>
+    <string name="live_occupancy">Live Occupancy</string>
+    <string name="next_class">Next Class</string>
+    <string name="inter_class_gap">Inter-Class Transition</string>
+    <string name="shuttle_countdown">Next Shuttle In</string>
+</resources>

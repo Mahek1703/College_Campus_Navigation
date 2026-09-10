@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 1. Ambient Drop Shadow -->
+    <path
+        android:pathData="M54,26 C41.8,26 32,35.8 32,48 C32,62.5 54,84 54,84 C54,84 76,62.5 76,48 C76,35.8 66.2,26 54,26 Z"
+        android:fillColor="#4D000000" />
+
+    <!-- 2. Outer Glowing Location Pin -->
+    <path android:pathData="M54,24 C41.2,24 31,34.2 31,47 C31,62.2 54,82 54,82 C54,82 77,62.2 77,47 C77,34.2 66.8,24 54,24 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="31"
+                android:startY="24"
+                android:endX="77"
+                android:endY="82"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#00E676" />
+                <item android:offset="0.5" android:color="#00B0FF" />
+                <item android:offset="1.0" android:color="#1E88E5" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- 3. Inner Dark Shield Container -->
+    <path
+        android:pathData="M54,28 C43.5,28 35,36.5 35,47 C35,59.5 54,75.5 54,75.5 C54,75.5 73,59.5 73,47 C73,36.5 64.5,28 54,28 Z"
+        android:fillColor="#0A1128" />
+
+    <!-- 4. Academic Building Facade (Pillars, Archway, Windows) -->
+    <!-- Building Roof Pediment Triangle -->
+    <path
+        android:pathData="M54,34 L40,41 L68,41 Z"
+        android:fillColor="#80D8FF" />
+
+    <!-- Architrave / Lintel -->
+    <path
+        android:pathData="M41,41.5 H67 V43 H41 Z"
+        android:fillColor="#00E676" />
+
+    <!-- Building Walls & Base -->
+    <path
+        android:pathData="M42,43 H66 V57 H42 Z"
+        android:fillColor="#152438" />
+
+    <!-- Classical Building Pillars -->
+    <path
+        android:pathData="M44,43.5 H46 V56.5 H44 Z M51,43.5 H53 V56.5 H51 Z M55,43.5 H57 V56.5 H55 Z M62,43.5 H64 V56.5 H62 Z"
+        android:fillColor="#E0F7FA" />
+
+    <!-- Center Arch Entrance Door -->
+    <path
+        android:pathData="M52,56.5 V50 C52,48.9 52.9,48 54,48 C55.1,48 56,48.9 56,50 V56.5 Z"
+        android:fillColor="#00E676" />
+
+    <!-- Building Base Steps -->
+    <path
+        android:pathData="M39,57 H69 V58.5 H39 Z"
+        android:fillColor="#4FC3F7" />
+
+    <!-- 5. Academic Graduation Mortarboard Cap on Top -->
+    <!-- Cap Diamond -->
+    <path
+        android:pathData="M54,19 L71,26 L54,33 L37,26 Z"
+        android:fillColor="#00E676" />
+    <path
+        android:pathData="M54,20 L68,26 L54,32 L40,26 Z"
+        android:fillColor="#00B0FF" />
+
+    <!-- Cap Skull Band -->
+    <path
+        android:pathData="M44,28.5 Q54,34 64,28.5 V31.5 Q54,37 44,31.5 Z"
+        android:fillColor="#00897B" />
+
+    <!-- Tassel String & Bob -->
+    <path
+        android:pathData="M40,26.5 L37,33.5"
+        android:strokeWidth="1.2"
+        android:strokeColor="#FFD54F" />
+    <path
+        android:pathData="M36,33.5 H38 V36.5 H36 Z"
+        android:fillColor="#FFD54F" />
+
+    <!-- 6. Directional Navigation Arrow / Chevron at Bottom -->
+    <path android:pathData="M54,61 L61,71 L54,68 L47,71 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="47"
+                android:startY="61"
+                android:endX="61"
+                android:endY="71"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFF" />
+                <item android:offset="1.0" android:color="#00E676" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

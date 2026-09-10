@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#1E88E5</color>
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#E3F2FD</color>
+    <color name="accent">#00E676</color>
+    <color name="accent_dark">#00C853</color>
+    
+    <!-- Emergency & SOS -->
+    <color name="emergency_red">#D32F2F</color>
+    <color name="emergency_red_light">#FFCDD2</color>
+    <color name="emergency_red_dark">#B71C1C</color>
+    
+    <!-- Transit & Shuttle -->
+    <color name="shuttle_orange">#FB8C00</color>
+    <color name="shuttle_orange_light">#FFE0B2</color>
+    <color name="shuttle_blue">#0288D1</color>
+    <color name="shuttle_green">#43A047</color>
+    
+    <!-- Accessibility Mode -->
+    <color name="accessible_purple">#7E57C2</color>
+    <color name="accessible_purple_light">#EDE7F6</color>
+    
+    <!-- Construction / Hazard Warning -->
+    <color name="hazard_amber">#FFA000</color>
+    <color name="hazard_amber_light">#FFF8E1</color>
+    
+    <!-- Live Occupancy Indicators -->
+    <color name="occupancy_low">#2E7D32</color>
+    <color name="occupancy_medium">#EF6C00</color>
+    <color name="occupancy_high">#C62828</color>
+    <color name="occupancy_bg_low">#E8F5E9</color>
+    <color name="occupancy_bg_medium">#FFF3E0</color>
+    <color name="occupancy_bg_high">#FFEBEE</color>
+    
+    <!-- Blueprint / Indoor Floor Canvas -->
+    <color name="blueprint_bg">#0F172A</color>
+    <color name="blueprint_grid">#1E293B</color>
+    <color name="blueprint_wall">#64748B</color>
+    <color name="blueprint_room_fill">#1E293B</color>
+    <color name="blueprint_room_selected">#0284C7</color>
+    <color name="blueprint_corridor">#0F172A</color>
+    <color name="blueprint_path">#38BDF8</color>
+    <color name="blueprint_text">#F8FAFC</color>
+    
+    <!-- Neutral Surface & Text -->
+    <color name="bg_dark">#121212</color>
+    <color name="surface_white">#FFFFFF</color>
+    <color name="surface_light">#F8FAFC</color>
+    <color name="surface_card">#F1F5F9</color>
+    <color name="card_stroke">#E2E8F0</color>
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_muted">#94A3B8</color>
+    <color name="divider">#E2E8F0</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
